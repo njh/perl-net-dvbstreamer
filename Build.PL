@@ -4,9 +4,9 @@ my $build = Module::Build->new
 (
 	module_name => 'Net::DVBStreamer::Client',
 	license => 'perl',
-#	script_files => [
-#		'examples/psapd',
-#	],
+	script_files => [
+		'scripts/dvbctrl.pl',
+	],
 	build_requires => {
 		'Module::Build' => '0.20'
 	},
