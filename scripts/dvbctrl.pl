@@ -15,7 +15,7 @@ $|=1;
 getopts( "h:a:f:u:p:", \%opt ) or usage();
 
 
-# Default for settings
+# Defaults for settings
 my $host = $opt{h}		|| 'localhost';
 my $adaptor = $opt{a}	|| 0;
 my $username = $opt{u}	|| 'dvbstreamer';
@@ -26,7 +26,11 @@ my $file = $opt{f}		|| undef;
 # Connect to remote server
 my $dvbs = new Net::DVBStreamer::Client( $host, $adaptor );
 
-
+if (defined $username and defined $password) {
+	if (!$dvbs->authenticate( $username, $password )) {
+		die "Failed to authenticate with server: ".$dvbs->response()."\n";
+	}
+}
 
 
 ## Process commands from a file?
@@ -58,9 +62,10 @@ if (defined $file) {
 	print "Connected to $host, adaptor $adaptor (server version ".$dvbs->server_version().").\n";
 	
 	# Read commands from the console
-	while ( defined ($cmd = $term->readline('PerlDVBCtrl>')) ) {
+	while ( defined (my $cmd = $term->readline('PerlDVBCtrl>')) ) {
 	
-		chomp();
+		# Trim whitespace
+		chomp($cmd);
 		
 		# End of session?
 		if ($cmd eq 'quit' or $cmd eq 'logout') {
