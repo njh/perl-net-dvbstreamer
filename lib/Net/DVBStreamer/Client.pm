@@ -15,7 +15,7 @@ use IO::Socket::INET;
 
 use vars qw/$VERSION/;
 our $VERSION="0.01";
-
+our $AUTOLOAD;
 
 my $BASE_PORT = 54197;
 my $RESPONSE_PREFIX = 'DVBStreamer/';
@@ -80,8 +80,11 @@ sub send_command {
 			if ($errno != 0) {
 				# Error
 				return undef;
+			} elsif (scalar(@result)==1) {
+				# Success - return the single line as scalar
+				return $result[0];
 			} elsif (scalar(@result)) {
-				# Success - return the lines
+				# Success - return the multiple lines as array
 				return @result;
 			} else {
 				# Success - return the response message
@@ -149,6 +152,17 @@ sub _parse_reponse_line {
 	$self->{'response'} = $response;
 	
 	return ($errno, $response);
+}
+
+
+#
+# Pass unhandled method calls on to send_command()
+#
+sub AUTOLOAD {
+	my $self = shift;
+	
+	my $cmd = substr($AUTOLOAD, rindex($AUTOLOAD, '::')+2);
+	return $self->send_command( $cmd, @_ );
 }
 
 
