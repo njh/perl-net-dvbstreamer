@@ -64,12 +64,14 @@ sub new {
 #
 sub send_command {
 	my $self = shift;
-	my @params = @_;
+	my ($command, @params) = @_;
 	my @result = ();
 	
+	croak "Usage: send_command( $command, [@params] )" unless (defined $command);
+
 	
 	# Send the command
-	$self->{'sock'}->print( join(' ', @params)."\n" );
+	$self->{'sock'}->print( join(' ', $command, @params)."\n" );
 	
 	# Read the result line by line
 	while (my $line = $self->{'sock'}->getline()) {
@@ -192,13 +194,14 @@ Net::DVBStreamer::Client blah blah blah
 
 =over 4
 
-=item $sap = new Net::DVBStreamer::Client( $host, $adaptor )
+=item $sap = new Net::DVBStreamer::Client( [$host], [$adaptor] )
 
 The new() method is the constructor for the C<Net::DVBStreamer::Client> class.
 
+If no host if specified, then 'localhost' is used.
 
 
-=item $result = $dvbs->send_command()
+=item $result = $dvbs->send_command( $command, [@params] )
 
 
 =item $result = $dvbs->server_version()
@@ -223,6 +226,8 @@ The new() method is the constructor for the C<Net::DVBStreamer::Client> class.
 =head1 TODO
 
 - Add timeout when waiting for response
+
+- Detect server closing connection
 
 
 =head1 SEE ALSO
